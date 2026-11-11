@@ -1,6 +1,6 @@
 /* Funciona sem internet depois da primeira visita (precisa de HTTPS).
    Subir VERSAO sempre que qualquer ficheiro do site mudar. */
-var VERSAO = "20261111-1";
+var VERSAO = "20261111-2";
 var CACHE = "formalab-site-" + VERSAO;
 var FICHEIROS = ["./", "index.html", "orcamento.html", "orcamento.css", "orcamento.mjs", "pricing.mjs", "inclui.mjs",
   "portfolio-interativo.js", "demo.html", "demo.css", "demo.mjs", "core.mjs", "manifest.webmanifest", "img/digital-lab.png", "img/formalab.png"];

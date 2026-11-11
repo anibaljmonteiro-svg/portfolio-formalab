@@ -1,5 +1,5 @@
 import {defaults,validateConfig,calculate,DESC_MAX} from './pricing.mjs';
-import {INCL,PRIMEIRO_MES} from './inclui.mjs';
+import {INCL,PRIMEIRO_MES,RESUMO} from './inclui.mjs';
 
 /* Configuração: código do modo comercial (definido pela equipa comercial, 11/11/2026).
    Não é segurança: esta página corre no browser. O controlo real é a proposta final, revista por quem assina. */
@@ -12,7 +12,8 @@ let config=structuredClone(defaults), last, summaryText='', commercial=false;
 try{const saved=localStorage.getItem(key);if(saved)config=validateConfig(JSON.parse(saved));}catch{$('#priceStatus').textContent='Não foi possível recuperar a grelha guardada. Estão ativos os valores de referência.';}
 
 const value=id=>{const p=config.items.find(x=>x.id===id)?.price;return p==null?'Por definir':money(p*100)};
-const ul=a=>a&&a.length?'<ul>'+a.map(x=>'<li>'+escape(x)+'</li>').join('')+'</ul>':'';
+const li=y=>'<li>'+escape(y)+'</li>';
+const ul=a=>a&&a.length?'<ul>'+a.map(x=>typeof x==='string'?li(x):'<li class="grp"><strong>'+escape(x.g)+'</strong><ul>'+x.i.map(li).join('')+'</ul></li>').join('')+'</ul>':'';
 function num(name){const e=form.elements[name],min=Number(e.min)||0,max=Number(e.max)||10000;return Math.min(max,Math.max(min,Math.floor(Number(e.value)||0)));}
 
 function state(){
@@ -29,7 +30,7 @@ function drawChoices(){
   const site=form.elements.site?.value||'none', apps={};
   for(const k of ['agenda','obra','aulas'])apps[k]=form.elements[k]?.checked||false;
   $('#siteOptions').innerHTML='<label class="choice"><input type="radio" name="site" value="none"><strong>Sem site novo</strong><small>Aplicações ou serviços isolados</small><span class="price">Sem criação de site</span></label>'+
-    ['simples','mediano','profissional'].map(k=>`<label class="choice"><input type="radio" name="site" value="${k}"><strong>Site ${k[0].toUpperCase()+k.slice(1)}</strong><small>${config.rules.pages[k]} página(s) · ${config.rules.photos[k]} fotos incluídas (produção + inserção)</small><span class="price">${value(k)}</span><small>+ ${value('siteMonth')}/mês de gestão técnica</small></label>`).join('');
+    ['simples','mediano','profissional'].map(k=>`<label class="choice"><input type="radio" name="site" value="${k}"><strong>Site ${k[0].toUpperCase()+k.slice(1)}</strong><small>${config.rules.pages[k]} página(s) · ${config.rules.photos[k]} fotos incluídas (produção + inserção)</small><ul class="mini">${(RESUMO[k]||[]).slice(1).map(li).join('')}</ul><span class="price">${value(k)}</span><small>+ ${value('siteMonth')}/mês de gestão técnica</small></label>`).join('');
   form.elements.site.value=site;
   $('#appOptions').innerHTML=[['agenda','Agendar Fácil','Marcações e acesso do cliente'],['obra','Obraemdia','Gestão da operação e acesso do cliente'],['aulas','Gestão de aulas em grupo','Aulas e sessões em grupo, com horários e lotação']].map(([k,n,d])=>`<label class="choice app"><input type="checkbox" name="${k}" ${apps[k]?'checked':''}><div><strong>${n}</strong><small>${d} · âmbito a confirmar</small><span class="price">${value(k)}/mês</span><small>Implementação: ${value(k+'Setup')}</small></div></label>`).join('');
 }
