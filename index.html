@@ -1,0 +1,701 @@
+<!DOCTYPE html><html lang="pt-PT"><head><meta name="robots" content="noindex,nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Lab + FormaLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+        :root {
+            --color-brand-purple: #48145c;
+            --color-brand-coral: #f45b3d;
+            --color-bg-porcelain: #f6f3ee;
+            --color-text-ink: #26202b;
+            --color-text-secondary: #6d6470;
+            --scene-lavender: #e7dded;
+            --scene-sand: #eee3cf;
+            --scene-mint: #dce9df;
+            --scene-sky: #dce6f1;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--color-bg-porcelain);
+            color: var(--color-text-ink);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .text-brand-purple { color: var(--color-brand-purple); }
+        .text-brand-coral { color: var(--color-brand-coral); }
+        .text-ink { color: var(--color-text-ink); }
+        .text-secondary { color: var(--color-text-secondary); }
+        
+        .bg-porcelain { background-color: var(--color-bg-porcelain); }
+        .bg-brand-purple { background-color: var(--color-brand-purple); }
+        .bg-brand-coral { background-color: var(--color-brand-coral); }
+
+        .product-card {
+            border-radius: 24px;
+            border: 1px solid rgba(38, 32, 43, 0.08);
+            background: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        
+        @media (prefers-reduced-motion: no-preference) {
+            .product-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px -8px rgba(72, 20, 92, 0.15);
+            }
+            .motion-pause-btn .play-icon { display: none; }
+            .paused .motion-pause-btn .pause-icon { display: none; }
+            .paused .motion-pause-btn .play-icon { display: block; }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .product-card { transition: none; transform: none !important; box-shadow: none !important; }
+            .cinematic-bg { display: none !important; }
+            .motion-controls { display: none; }
+        }
+
+        /* Cinematic Backgrounds */
+        .cinematic-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            pointer-events: none;
+        }
+        .cinematic-bg.active { opacity: 1; }
+
+        /* Sol */
+        .bg-sol { background: linear-gradient(to bottom right, var(--scene-sand), #fff8e7); }
+        .sun-shaft {
+            position: absolute;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+            transform-origin: top;
+            animation: sway 15s infinite ease-in-out alternate;
+        }
+        .paused .sun-shaft { animation-play-state: paused; }
+        @keyframes sway {
+            0% { transform: rotate(-15deg) scaleY(1); }
+            100% { transform: rotate(15deg) scaleY(1.2); }
+        }
+
+        /* Chuva */
+        .bg-chuva { background: linear-gradient(to bottom, var(--scene-sky), #b0c4de); }
+        .rain-drop {
+            position: absolute;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.6));
+            width: 1px;
+            height: 40px;
+            animation: fall linear infinite;
+        }
+        .paused .rain-drop { animation-play-state: paused; }
+        @keyframes fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* Mar */
+        .bg-mar { background: linear-gradient(to bottom, var(--scene-mint), #a8d8b9); }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: -50%;
+            width: 200%;
+            height: 40%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 40% 60% 50% 40% / 40% 50% 60% 50%;
+            animation: wave-flow 20s infinite linear;
+        }
+        .paused .wave { animation-play-state: paused; }
+        @keyframes wave-flow {
+            0% { transform: translateX(0) rotate(0deg); }
+            100% { transform: translateX(25%) rotate(360deg); }
+        }
+    @media(max-width:700px){.pf-grid:has([data-demo])>div:first-child{order:2}.pf-grid:has([data-demo])>div:last-child{order:1}}</style>
+</head>
+<body>
+    <div class="min-h-screen bg-porcelain flex flex-col relative" id="app-root">
+        
+        <!-- Cinematic Backgrounds -->
+        <div id="scene-sol" class="cinematic-bg bg-sol active">
+            <div class="sun-shaft" style="width: 20vw; height: 100vh; left: 10%; top: -10%; opacity: 0.4;"></div>
+            <div class="sun-shaft" style="width: 30vw; height: 100vh; left: 50%; top: -20%; opacity: 0.3; animation-delay: -5s;"></div>
+        </div>
+        <div id="scene-chuva" class="cinematic-bg bg-chuva">
+            <!-- Rain drops generated via JS for simplicity, or static CSS here -->
+            <div class="rain-drop" style="left: 10%; animation-duration: 1.2s; animation-delay: 0s;"></div>
+            <div class="rain-drop" style="left: 30%; animation-duration: 1.5s; animation-delay: 0.5s;"></div>
+            <div class="rain-drop" style="left: 50%; animation-duration: 1.1s; animation-delay: 0.2s;"></div>
+            <div class="rain-drop" style="left: 70%; animation-duration: 1.4s; animation-delay: 0.8s;"></div>
+            <div class="rain-drop" style="left: 90%; animation-duration: 1.3s; animation-delay: 0.4s;"></div>
+        </div>
+        <div id="scene-mar" class="cinematic-bg bg-mar">
+            <div class="wave" style="bottom: -10%; opacity: 0.3; animation-duration: 25s;"></div>
+            <div class="wave" style="bottom: -20%; opacity: 0.5; animation-duration: 20s; animation-direction: reverse;"></div>
+        </div>
+
+        <!-- Navigation -->
+        <header class="sticky top-0 z-40 bg-porcelain/90 backdrop-blur-md border-b border-black/5">
+            <div class="max-w-[1440px] mx-auto px-[24px] md:px-[48px] h-[88px] flex items-center justify-between">
+                <a id="nav-home-link" href="#" class="flex items-center gap-[16px] z-10">
+                    <img src="img/digital-lab.png" alt="Digital Lab Agency" class="h-[64px] object-contain mix-blend-multiply">
+                    <div class="h-[32px] w-[1px] bg-black/10 mx-[8px]"></div>
+                    <span class="text-[20px] font-bold tracking-tight text-ink">FormaLab</span>
+                </a>
+                
+                <nav class="hidden md:flex items-center gap-[32px]">
+                    <a id="nav-solucoes-link" href="#solucoes" class="text-[16px] font-medium text-ink hover:text-brand-purple transition-colors">Soluções</a>
+                    <a id="nav-dia-a-dia-link" href="#o-seu-dia-a-dia" class="text-[16px] font-medium text-ink hover:text-brand-purple transition-colors">O seu dia a dia</a>
+                    <a id="nav-orcamento-link" href="#orcamento" class="px-[24px] py-[12px] bg-brand-purple text-white rounded-full font-medium hover:bg-[#320e40] transition-colors text-[16px]">Pedir orçamento</a>
+                </nav>
+            </div>
+            <div class="absolute top-[16px] right-[24px] md:right-[48px] text-[12px] text-secondary/60 flex items-center gap-[16px]">
+                 <button id="motion-toggle" class="motion-controls motion-pause-btn text-secondary hover:text-brand-purple p-[8px] rounded-full hover:bg-black/5" aria-label="Pausar animações">
+                     <iconify-icon icon="lucide:pause" class="pause-icon text-[18px]"></iconify-icon>
+                     <iconify-icon icon="lucide:play" class="play-icon text-[18px]"></iconify-icon>
+                 </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 relative z-10">
+            
+            <!-- Hero Section -->
+            <section class="pt-[72px] pb-[48px] px-[24px] md:px-[48px] max-w-[1440px] mx-auto text-center relative z-10">
+                <h1 class="text-[48px] md:text-[64px] font-bold text-ink leading-[1.1] tracking-tight mb-[24px] max-w-[800px] mx-auto">
+                    O seu negócio, com outra presença.
+                </h1>
+                <p class="text-[20px] text-secondary max-w-[600px] mx-auto mb-[48px] leading-[1.5]">
+                    Sites, aplicações e comunicação à medida da sua empresa.
+                </p>
+
+                
+                <a id="hero-cta-link" href="#solucoes" class="inline-block px-[32px] py-[16px] bg-brand-purple text-white rounded-full font-bold text-[18px] hover:bg-[#320e40] transition-colors shadow-lg shadow-brand-purple/20">
+                    Descobrir soluções
+                </a>
+            </section>
+
+            <!-- Products Grid -->
+            <section id="solucoes" class="px-[24px] md:px-[48px] py-[72px] max-w-[1440px] mx-auto relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px]">
+                    <!-- 1. Site -->
+                    <article class="product-card flex flex-col h-full bg-white">
+                        <div class="p-[24px] bg-scene-mint aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <div class="w-[90%] h-[85%] bg-white rounded-[16px] shadow-lg border border-black/5 flex flex-col overflow-hidden relative">
+                                 <!-- Browser/App Header -->
+                                 <div class="h-[40px] bg-porcelain flex items-center px-[16px] justify-between border-b border-black/5">
+                                     <div class="font-bold text-[14px] tracking-tight text-ink flex items-center gap-[8px]"><div class="w-[16px] h-[16px] bg-brand-coral rounded-full"></div> O Seu Negócio</div>
+                                     <div class="flex gap-[12px] text-[10px] uppercase font-bold text-secondary">
+                                         <span class="hover:text-brand-purple cursor-pointer">Serviços</span>
+                                         <span class="hover:text-brand-purple cursor-pointer">Sobre</span>
+                                     </div>
+                                 </div>
+                                 <!-- Hero Section -->
+                                 <div class="h-[45%] bg-[#e8f0e9] relative flex flex-col justify-center px-[24px]">
+                                      <div class="w-[70%] max-w-[200px] z-10">
+                                          <div class="h-[8px] w-full bg-brand-purple/20 rounded-full mb-[8px]"></div>
+                                          <div class="h-[8px] w-[80%] bg-brand-purple/20 rounded-full mb-[16px]"></div>
+                                          <div class="h-[24px] w-[80px] bg-brand-purple text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-md">
+                                              Contactar
+                                          </div>
+                                      </div>
+                                      <!-- Abstract Illustration -->
+                                      <div class="absolute right-[-10%] bottom-[-20%] w-[150px] h-[150px] bg-white/40 rounded-full blur-md"></div>
+                                      <div class="absolute right-[10%] top-[10%] w-[80px] h-[80px] bg-brand-coral/10 rounded-full flex items-center justify-center">
+                                           <iconify-icon icon="lucide:sparkles" class="text-brand-coral text-[32px] opacity-50"></iconify-icon>
+                                      </div>
+                                 </div>
+                                 <!-- Content Grid -->
+                                 <div class="flex-1 bg-white p-[16px] grid grid-cols-2 gap-[12px]">
+                                      <div class="rounded-[12px] bg-porcelain overflow-hidden group">
+                                           <div class="h-[60%] bg-brand-purple/10 flex items-center justify-center group-hover:bg-brand-purple/20 transition-colors">
+                                                <iconify-icon icon="lucide:layout-template" class="text-brand-purple text-[24px]"></iconify-icon>
+                                           </div>
+                                           <div class="p-[8px]">
+                                               <div class="h-[4px] w-[60%] bg-ink/20 rounded-full mb-[4px]"></div>
+                                               <div class="h-[4px] w-[40%] bg-ink/10 rounded-full"></div>
+                                           </div>
+                                      </div>
+                                      <div class="rounded-[12px] bg-porcelain overflow-hidden group">
+                                           <div class="h-[60%] bg-brand-coral/10 flex items-center justify-center group-hover:bg-brand-coral/20 transition-colors">
+                                                <iconify-icon icon="lucide:image" class="text-brand-coral text-[24px]"></iconify-icon>
+                                           </div>
+                                           <div class="p-[8px]">
+                                               <div class="h-[4px] w-[50%] bg-ink/20 rounded-full mb-[4px]"></div>
+                                               <div class="h-[4px] w-[30%] bg-ink/10 rounded-full"></div>
+                                           </div>
+                                      </div>
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">Site Institucional</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">Presença online profissional com os seus serviços, contactos, mapas e avaliações.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                        </div>
+                    </article>
+
+                    <!-- 2. Site com Agenda -->
+                    <article class="product-card flex flex-col h-full bg-white">
+                        <div class="p-[24px] bg-scene-lavender aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <!-- Mobile Device Mockup -->
+                             <div class="w-[55%] h-[95%] bg-white rounded-[24px] shadow-xl border-[4px] border-ink flex flex-col overflow-hidden relative">
+                                 <div class="bg-brand-purple text-white p-[16px] pb-[24px] relative">
+                                      <div class="flex justify-between items-center mb-[16px]">
+                                          <iconify-icon icon="lucide:menu" class="text-[16px]"></iconify-icon>
+                                          <span class="text-[10px] font-bold tracking-widest uppercase">Beleza</span>
+                                          <div class="w-[24px] h-[24px] bg-white/20 rounded-full"></div>
+                                      </div>
+                                      <div class="text-[18px] font-bold leading-tight">Marque o<br>seu serviço</div>
+                                 </div>
+                                 <!-- Overlapping Card -->
+                                 <div class="flex-1 bg-porcelain px-[12px] -mt-[12px] rounded-t-[16px] relative z-10 pt-[16px] overflow-hidden">
+                                      <div class="bg-white rounded-[12px] p-[12px] shadow-sm mb-[12px]">
+                                          <div class="flex justify-between items-center mb-[12px]">
+                                              <span class="text-[10px] font-bold text-ink">Julho</span>
+                                              <div class="flex gap-[4px]">
+                                                  <div class="w-[16px] h-[16px] bg-porcelain rounded-full flex items-center justify-center"><iconify-icon icon="lucide:chevron-left" class="text-[10px]"></iconify-icon></div>
+                                                  <div class="w-[16px] h-[16px] bg-porcelain rounded-full flex items-center justify-center"><iconify-icon icon="lucide:chevron-right" class="text-[10px]"></iconify-icon></div>
+                                              </div>
+                                          </div>
+                                          <div class="flex justify-between text-secondary/50 text-[8px] font-bold mb-[8px]">
+                                              <span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                                          </div>
+                                          <div class="flex justify-between text-ink text-[10px] font-medium">
+                                              <span class="w-[20px] h-[20px] flex items-center justify-center opacity-30">12</span>
+                                              <span class="w-[20px] h-[20px] flex items-center justify-center opacity-30">13</span>
+                                              <span class="w-[20px] h-[20px] flex items-center justify-center bg-brand-purple text-white rounded-full shadow-md transform scale-110">14</span>
+                                              <span class="w-[20px] h-[20px] flex items-center justify-center">15</span>
+                                              <span class="w-[20px] h-[20px] flex items-center justify-center">16</span>
+                                              <span class="w-[20px] h-[20px] flex items-center justify-center">17</span>
+                                          </div>
+                                      </div>
+                                      <div class="space-y-[8px]">
+                                          <div class="bg-brand-coral/10 border border-brand-coral/20 rounded-[8px] p-[10px] flex justify-between items-center cursor-pointer hover:bg-brand-coral/20 transition-colors">
+                                               <div>
+                                                   <div class="text-[10px] font-bold text-ink">10:00</div>
+                                                   <div class="text-[8px] text-secondary">Corte & Styling</div>
+                                               </div>
+                                               <div class="w-[24px] h-[24px] bg-white rounded-full flex items-center justify-center shadow-sm">
+                                                   <iconify-icon icon="lucide:check" class="text-brand-coral text-[12px]"></iconify-icon>
+                                               </div>
+                                          </div>
+                                          <div class="bg-white rounded-[8px] p-[10px] flex justify-between items-center opacity-60">
+                                               <div>
+                                                   <div class="text-[10px] font-bold text-ink">11:30</div>
+                                                   <div class="text-[8px] text-secondary">Coloração</div>
+                                               </div>
+                                          </div>
+                                      </div>
+                                 </div>
+                             </div>
+                             <!-- Floating Element -->
+                             <div class="absolute right-[10%] bottom-[20%] bg-white p-[12px] rounded-[16px] shadow-lg border border-black/5 z-20 w-[100px]">
+                                  <div class="flex items-center gap-[8px] mb-[8px]">
+                                      <div class="w-[20px] h-[20px] bg-brand-coral text-white rounded-full flex items-center justify-center"><iconify-icon icon="lucide:user" class="text-[10px]"></iconify-icon></div>
+                                      <div class="flex-1">
+                                          <div class="h-[3px] w-full bg-ink/20 rounded-full mb-[2px]"></div>
+                                          <div class="h-[3px] w-[60%] bg-ink/10 rounded-full"></div>
+                                      </div>
+                                  </div>
+                                  <div class="h-[16px] w-full bg-porcelain rounded-[4px] flex items-center justify-center text-[8px] font-bold text-brand-purple">
+                                      Confirmado
+                                  </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">Site com Agenda</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">O seu site ligado a um sistema de marcações online para um profissional. Área de cliente incluída.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 3. Site com Agendas (Múltiplos) -->
+                    <article class="product-card flex flex-col h-full bg-white">
+                        <div class="p-[24px] bg-black/5 aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <div class="w-[90%] h-[80%] bg-white rounded-[12px] shadow-sm border border-black/5 flex overflow-hidden">
+                                 <div class="w-[30%] bg-black/5 border-r border-black/5 p-[8px] flex flex-col gap-[8px]">
+                                     <div class="w-full h-[24px] bg-white rounded-[4px] border border-brand-purple flex items-center px-[4px] gap-[4px]">
+                                          <div class="w-[12px] h-[12px] rounded-full bg-brand-purple/20"></div>
+                                          <div class="w-[40%] h-[4px] bg-brand-purple/50 rounded-full"></div>
+                                     </div>
+                                     <div class="w-full h-[24px] bg-transparent rounded-[4px] flex items-center px-[4px] gap-[4px]">
+                                          <div class="w-[12px] h-[12px] rounded-full bg-black/10"></div>
+                                          <div class="w-[50%] h-[4px] bg-black/20 rounded-full"></div>
+                                     </div>
+                                     <div class="w-full h-[24px] bg-transparent rounded-[4px] flex items-center px-[4px] gap-[4px]">
+                                          <div class="w-[12px] h-[12px] rounded-full bg-black/10"></div>
+                                          <div class="w-[30%] h-[4px] bg-black/20 rounded-full"></div>
+                                     </div>
+                                 </div>
+                                 <div class="flex-1 p-[12px]">
+                                     <div class="w-full h-full border border-black/5 rounded-[4px] relative">
+                                         <div class="absolute top-[20%] left-[10%] right-[10%] h-[20%] bg-brand-purple/10 rounded-[2px]"></div>
+                                         <div class="absolute top-[50%] left-[10%] right-[30%] h-[15%] bg-brand-coral/10 rounded-[2px]"></div>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">Site com Agendas</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">Para clínicas e salões. Cada profissional gere a sua agenda. O administrador tem visão global.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 4. Agenda Autónoma -->
+                    <article class="product-card flex flex-col h-full bg-white">
+                        <div class="p-[24px] bg-brand-coral/5 aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <div class="w-[60%] h-[90%] bg-white rounded-[16px] shadow-sm border border-black/5 flex flex-col overflow-hidden">
+                                 <div class="h-[60px] bg-brand-coral/10 flex flex-col justify-center px-[16px] gap-[4px]">
+                                     <div class="w-[40%] h-[6px] bg-brand-coral/40 rounded-full"></div>
+                                     <div class="w-[20%] h-[4px] bg-black/10 rounded-full"></div>
+                                 </div>
+                                 <div class="flex-1 p-[16px] flex flex-col gap-[12px]">
+                                     <div class="w-full p-[12px] border border-brand-coral/20 rounded-[8px] flex items-center justify-between">
+                                         <div class="flex flex-col gap-[4px]">
+                                            <div class="w-[24px] h-[4px] bg-black/20 rounded-full"></div>
+                                            <div class="w-[48px] h-[4px] bg-black/10 rounded-full"></div>
+                                         </div>
+                                         <div class="w-[16px] h-[16px] rounded-full border-2 border-brand-coral"></div>
+                                     </div>
+                                     <div class="w-full p-[12px] border border-black/5 rounded-[8px] flex items-center justify-between">
+                                         <div class="flex flex-col gap-[4px]">
+                                            <div class="w-[32px] h-[4px] bg-black/20 rounded-full"></div>
+                                            <div class="w-[40px] h-[4px] bg-black/10 rounded-full"></div>
+                                         </div>
+                                         <div class="w-[16px] h-[16px] rounded-full border-2 border-black/10"></div>
+                                     </div>
+                                     <div class="mt-auto w-full h-[32px] bg-brand-coral rounded-[8px] flex items-center justify-center">
+                                         <div class="w-[30%] h-[4px] bg-white/50 rounded-full"></div>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">Agenda Autónoma</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">Sistema de marcações direto, sem necessidade de construir um site institucional completo.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 5. Gestão de Equipas -->
+                    <article class="product-card flex flex-col h-full bg-white">
+                        <div class="p-[24px] bg-black/5 aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <div class="w-[80%] h-[80%] bg-white rounded-[12px] shadow-sm border border-black/5 flex flex-col overflow-hidden">
+                                 <div class="flex-1 p-[16px] flex gap-[16px]">
+                                     <div class="w-[60%] flex flex-col gap-[8px]">
+                                         <div class="w-full h-[24px] bg-black/5 rounded-[4px] flex items-center px-[8px] justify-between">
+                                             <div class="w-[30%] h-[4px] bg-black/20 rounded-full"></div>
+                                             <div class="w-[16px] h-[8px] bg-brand-coral/40 rounded-[2px]"></div>
+                                         </div>
+                                         <div class="w-full h-[24px] bg-black/5 rounded-[4px] flex items-center px-[8px] justify-between">
+                                             <div class="w-[40%] h-[4px] bg-black/20 rounded-full"></div>
+                                             <div class="w-[16px] h-[8px] bg-brand-coral/40 rounded-[2px]"></div>
+                                         </div>
+                                         <div class="w-full h-[24px] bg-black/5 rounded-[4px] flex items-center px-[8px] justify-between">
+                                             <div class="w-[20%] h-[4px] bg-black/20 rounded-full"></div>
+                                             <div class="w-[16px] h-[8px] bg-brand-coral/40 rounded-[2px]"></div>
+                                         </div>
+                                     </div>
+                                     <div class="flex-1 flex flex-col gap-[8px]">
+                                         <div class="aspect-square w-full bg-brand-purple/5 rounded-[8px] border border-brand-purple/20 flex flex-col items-center justify-center p-[8px]">
+                                             <iconify-icon icon="lucide:clock" class="text-brand-purple text-[24px] mb-[4px]"></iconify-icon>
+                                             <div class="w-[60%] h-[4px] bg-brand-purple/30 rounded-full"></div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div class="h-[40px] border-t border-black/5 flex items-center justify-around px-[16px]">
+                                     <div class="w-[24px] h-[4px] bg-brand-purple rounded-full"></div>
+                                     <div class="w-[24px] h-[4px] bg-black/10 rounded-full"></div>
+                                     <div class="w-[24px] h-[4px] bg-black/10 rounded-full"></div>
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">Equipas e Recursos</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">Controlo de horas, trabalhos, materiais e viaturas. Ideal para serviços no exterior e obras.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 6. Google -->
+                    <article class="product-card flex flex-col h-full bg-white">
+                        <div class="p-[24px] bg-scene-sky aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <div class="w-[80%] h-[80%] bg-white rounded-[12px] shadow-sm border border-black/5 flex flex-col overflow-hidden">
+                                 <div class="h-[40%] bg-black/5 relative">
+                                      <div class="absolute -bottom-[20px] left-[16px] w-[40px] h-[40px] bg-white rounded-full border-2 border-white shadow-sm flex items-center justify-center">
+                                          <div class="w-[20px] h-[20px] bg-brand-purple/20 rounded-full"></div>
+                                      </div>
+                                 </div>
+                                 <div class="flex-1 pt-[28px] px-[16px] flex flex-col gap-[8px]">
+                                     <div class="w-[70%] h-[8px] bg-black/20 rounded-full"></div>
+                                     <div class="flex gap-[4px] mb-[4px]">
+                                         <iconify-icon icon="lucide:star" class="text-[#f4b400] text-[10px]"></iconify-icon>
+                                         <iconify-icon icon="lucide:star" class="text-[#f4b400] text-[10px]"></iconify-icon>
+                                         <iconify-icon icon="lucide:star" class="text-[#f4b400] text-[10px]"></iconify-icon>
+                                         <iconify-icon icon="lucide:star" class="text-[#f4b400] text-[10px]"></iconify-icon>
+                                         <iconify-icon icon="lucide:star" class="text-[#f4b400] text-[10px]"></iconify-icon>
+                                     </div>
+                                     <div class="w-full h-[4px] bg-black/5 rounded-full"></div>
+                                     <div class="w-[80%] h-[4px] bg-black/5 rounded-full"></div>
+                                     <div class="mt-auto flex gap-[8px] pb-[16px]">
+                                         <div class="flex-1 h-[24px] rounded-[12px] border border-black/10 flex items-center justify-center">
+                                            <div class="w-[30%] h-[4px] bg-black/20 rounded-full"></div>
+                                         </div>
+                                         <div class="flex-1 h-[24px] rounded-[12px] border border-black/10 flex items-center justify-center">
+                                            <div class="w-[30%] h-[4px] bg-black/20 rounded-full"></div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">O seu Negócio na Google</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">Configuração profissional do Perfil de Empresa, Maps e relatórios de pesquisa para ser encontrado.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 7. CRM / Custom -->
+                    <article class="product-card flex flex-col h-full bg-white md:col-span-2 lg:col-span-1 lg:col-start-2">
+                        <div class="p-[24px] bg-brand-purple/10 aspect-square relative flex items-center justify-center overflow-hidden border-b border-black/5">
+                             <div class="w-[90%] h-[70%] bg-white rounded-[12px] shadow-sm border border-brand-purple/20 flex flex-col overflow-hidden">
+                                 <div class="h-[32px] bg-brand-purple text-white flex items-center px-[12px] gap-[8px]">
+                                     <iconify-icon icon="lucide:database" class="text-[14px]"></iconify-icon>
+                                     <div class="w-[40%] h-[4px] bg-white/50 rounded-full"></div>
+                                 </div>
+                                 <div class="flex-1 p-[12px] flex flex-col gap-[8px]">
+                                     <div class="flex gap-[8px]">
+                                         <div class="w-[30%] h-[48px] bg-black/5 rounded-[4px] p-[8px] flex flex-col justify-end">
+                                             <div class="w-[80%] h-[4px] bg-black/20 rounded-full mb-[4px]"></div>
+                                             <div class="w-full h-[16px] bg-brand-purple/20 rounded-[2px]"></div>
+                                         </div>
+                                         <div class="w-[30%] h-[48px] bg-black/5 rounded-[4px] p-[8px] flex flex-col justify-end">
+                                             <div class="w-[60%] h-[4px] bg-black/20 rounded-full mb-[4px]"></div>
+                                             <div class="w-full h-[24px] bg-brand-coral/20 rounded-[2px]"></div>
+                                         </div>
+                                         <div class="w-[40%] h-[48px] border border-dashed border-black/20 rounded-[4px] flex items-center justify-center">
+                                             <iconify-icon icon="lucide:plus" class="text-black/20"></iconify-icon>
+                                         </div>
+                                     </div>
+                                     <div class="flex-1 bg-black/5 rounded-[4px] mt-[8px] p-[8px]">
+                                         <div class="w-full h-[8px] bg-white rounded-[2px] mb-[4px]"></div>
+                                         <div class="w-[80%] h-[8px] bg-white rounded-[2px] mb-[4px]"></div>
+                                         <div class="w-[90%] h-[8px] bg-white rounded-[2px]"></div>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="p-[32px] flex flex-col flex-1">
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">Software à Medida / CRM</h3>
+                            <p class="text-[16px] text-secondary mb-[24px] leading-[1.5] flex-1">Gestão de rendas, atendimento de leads, ou processos internos únicos que as ferramentas padrão não resolvem.</p>
+                            <div class="pt-[24px] border-t border-black/10"><p class="text-[14px] text-secondary">Solução configurável · proposta personalizada</p></div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Demonstration View Example -->
+            <section id="o-seu-dia-a-dia" class="px-[24px] md:px-[48px] py-[72px] bg-white border-y border-black/5 relative z-10">
+                <div class="max-w-[1440px] mx-auto">
+                    <div class="text-center mb-[48px]">
+                        <h2 class="text-[32px] md:text-[48px] font-bold text-ink tracking-tight mb-[16px]">O seu dia a dia</h2>
+                        <p class="text-[18px] text-secondary max-w-[600px] mx-auto">
+                            Explore a perspetiva do cliente e a gestão interna.
+                        </p>
+                    </div>
+
+                    <div class="bg-porcelain rounded-[24px] p-[24px] md:p-[48px] flex flex-col lg:flex-row gap-[48px] border border-black/5">
+                        <div class="flex-1">
+                            <div class="flex gap-[8px] mb-[24px] bg-white p-[4px] rounded-full inline-flex border border-black/5 shadow-sm">
+                                <button class="px-[24px] py-[8px] rounded-full bg-brand-purple text-white text-[14px] font-medium">Visão Cliente</button>
+                                <button class="px-[24px] py-[8px] rounded-full text-secondary hover:bg-black/5 text-[14px] font-medium transition-colors">Profissional</button>
+                                <button class="px-[24px] py-[8px] rounded-full text-secondary hover:bg-black/5 text-[14px] font-medium transition-colors">Administrador</button>
+                            </div>
+                            
+                            <h3 class="text-[24px] font-bold text-ink mb-[16px]">O cliente escolhe o serviço e marca</h3>
+                            <ul class="space-y-[16px] mb-[32px]">
+                                <li class="flex items-start gap-[12px]">
+                                    <iconify-icon icon="lucide:check-circle-2" class="text-brand-coral text-[20px] mt-[2px]"></iconify-icon>
+                                    <span class="text-[16px] text-secondary">Acesso direto via telemóvel ou computador.</span>
+                                </li>
+                                <li class="flex items-start gap-[12px]">
+                                    <iconify-icon icon="lucide:check-circle-2" class="text-brand-coral text-[20px] mt-[2px]"></iconify-icon>
+                                    <span class="text-[16px] text-secondary">Visualiza horários reais disponíveis na hora.</span>
+                                </li>
+                                <li class="flex items-start gap-[12px]">
+                                    <iconify-icon icon="lucide:check-circle-2" class="text-brand-coral text-[20px] mt-[2px]"></iconify-icon>
+                                    <span class="text-[16px] text-secondary">Acompanha o pedido e a confirmação da marcação.</span>
+                                </li>
+                            </ul>
+                            <p class="text-[14px] text-secondary/60 italic">
+                                * Exemplo ilustrativo de interface de agendamento.
+                            </p>
+                        </div>
+                        
+                        <div class="flex-1 flex justify-center lg:justify-end">
+                             <div class="w-[320px] h-[600px] bg-white rounded-[32px] border-[8px] border-black shadow-xl overflow-hidden flex flex-col relative">
+                                 <div class="h-[24px] bg-white flex justify-between items-center px-[16px] text-[10px] text-black">
+                                     <span>09:41</span>
+                                     <div class="flex gap-[4px]">
+                                         <iconify-icon icon="lucide:wifi"></iconify-icon>
+                                         <iconify-icon icon="lucide:battery-full"></iconify-icon>
+                                     </div>
+                                 </div>
+                                 <div class="bg-brand-purple p-[24px] text-white">
+                                     <div class="w-[40px] h-[40px] bg-white/20 rounded-full mb-[16px]"></div>
+                                     <div class="text-[20px] font-bold mb-[4px]">Olá, Maria</div>
+                                     <div class="text-[14px] text-white/80">Faça a sua marcação.</div>
+                                 </div>
+                                 <div class="flex-1 bg-porcelain p-[16px] overflow-y-auto space-y-[16px]">
+                                     <div class="bg-white p-[16px] rounded-[16px] shadow-sm">
+                                         <div class="text-[14px] font-bold text-ink mb-[12px]">Serviços Frequentes</div>
+                                         <div class="flex gap-[12px] overflow-x-hidden">
+                                             <div class="w-[80px] h-[80px] bg-brand-coral/10 rounded-[12px] flex-shrink-0 flex items-center justify-center border border-brand-coral/20">
+                                                 <div class="w-[40%] h-[4px] bg-brand-coral/50 rounded-full"></div>
+                                             </div>
+                                             <div class="w-[80px] h-[80px] bg-black/5 rounded-[12px] flex-shrink-0 flex items-center justify-center">
+                                                 <div class="w-[40%] h-[4px] bg-black/20 rounded-full"></div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="bg-white p-[16px] rounded-[16px] shadow-sm">
+                                         <div class="text-[14px] font-bold text-ink mb-[12px]">Próximas vagas hoje</div>
+                                         <div class="grid grid-cols-3 gap-[8px]">
+                                             <div class="py-[8px] text-center border border-brand-purple text-brand-purple rounded-[8px] text-[14px] font-medium">14:30</div>
+                                             <div class="py-[8px] text-center border border-black/10 text-secondary rounded-[8px] text-[14px]">15:00</div>
+                                             <div class="py-[8px] text-center border border-black/10 text-secondary rounded-[8px] text-[14px]">16:45</div>
+                                         </div>
+                                     </div>
+                                     <button class="w-full py-[16px] bg-brand-purple text-white rounded-[12px] font-medium text-[16px] mt-[24px]">
+                                         Confirmar Marcação
+                                     </button>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quote Configurator CTA -->
+            <section id="orcamento" class="py-[72px] px-[24px] md:px-[48px] max-w-[1440px] mx-auto relative z-10">
+                <div class="bg-brand-purple rounded-[32px] p-[48px] md:p-[72px] flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10">
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                                    <circle fill="#ffffff" cx="2" cy="2" r="2"></circle>
+                                </pattern>
+                            </defs>
+                            <rect x="0" y="0" width="100%" height="100%" fill="url(#dots)"></rect>
+                        </svg>
+                    </div>
+                    <div class="relative z-10">
+                        <h2 class="text-[32px] md:text-[48px] font-bold text-white tracking-tight mb-[24px]">
+                            O seu orçamento
+                        </h2>
+                        <p class="text-[20px] text-white/80 max-w-[600px] mx-auto mb-[48px]">
+                            Explore uma estimativa de criação e mensalidade para a solução ideal.
+                        </p>
+                        <button class="px-[32px] py-[16px] bg-brand-coral text-white rounded-full font-bold text-[18px] hover:bg-[#e04526] transition-colors shadow-lg shadow-brand-coral/30">
+                            Simular orçamento
+                        </button>
+                        <p class="text-[14px] text-white/50 mt-[24px]">
+                            Simulação comercial · estimativas sem IVA, sujeitas a validação. 
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <section style="max-width:1344px;margin:0 auto 40px;padding:28px;background:#e7dded;border-radius:24px"><p style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#48145c">Nova solução no catálogo</p><h2 style="font-size:30px;font-weight:bold;margin:12px 0">Gestão de aulas em grupo</h2><p style="margin-bottom:20px">Aplicação de gestão e acesso do cliente. Selecione esta solução e descreva turmas, utilizadores e necessidades para validar o âmbito.</p><a href="orcamento.html?produto=aulas" style="background:#48145c;color:white;padding:14px 22px;border-radius:30px;display:inline-block">Adicionar ao meu pedido →</a><p style="font-size:12px;margin-top:12px">Demonstração funcional deste produto a acrescentar; funcionalidades a confirmar na proposta.</p></section><!-- Footer -->
+        <footer class="bg-white border-t border-black/5 py-[48px] px-[24px] md:px-[48px] relative z-20">
+            <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-[24px]">
+                <div class="flex items-center gap-[16px]">
+                     <img src="img/digital-lab.png" alt="Digital Lab Agency" class="h-[48px] object-contain mix-blend-multiply opacity-80">
+                     <div class="text-[14px] text-secondary">
+                         <strong>Digital Lab</strong> • Marketing e Comunicação
+                     </div>
+                </div>
+                
+                <div class="text-[14px] text-secondary/60">
+                    Portefólio Comercial © 2026.
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        const appRoot = document.getElementById('app-root');
+        const motionBtn = document.getElementById('motion-toggle');
+        const scenes = ['sol', 'chuva', 'mar'];
+        let currentSceneIndex = 0;
+        let cycleInterval;
+        const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        function setScene(sceneName) {
+            document.querySelectorAll('.cinematic-bg').forEach(bg => bg.classList.remove('active'));
+            const target = document.getElementById('scene-' + sceneName);
+            if (target) target.classList.add('active');
+
+        }
+
+        function nextScene() {
+            currentSceneIndex = (currentSceneIndex + 1) % scenes.length;
+            setScene(scenes[currentSceneIndex]);
+        }
+
+        function startCycle() {
+            stopCycle();
+            if (!appRoot.classList.contains('paused') && !motionPreference.matches && !document.hidden) {
+                cycleInterval = setInterval(nextScene, 10000);
+            }
+        }
+
+        function stopCycle() {
+            clearInterval(cycleInterval);
+        }
+
+        motionBtn.addEventListener('click', () => {
+            appRoot.classList.toggle('paused');
+            motionBtn.setAttribute('aria-label', appRoot.classList.contains('paused') ? 'Retomar animação' : 'Pausar animação');
+            motionBtn.setAttribute('aria-pressed', String(appRoot.classList.contains('paused')));
+            if (appRoot.classList.contains('paused')) {
+                stopCycle();
+            } else {
+                startCycle();
+            }
+        });
+
+        motionPreference.addEventListener('change', startCycle);
+        document.addEventListener('visibilitychange', startCycle);
+
+        // Initialize
+        setScene('sol');
+        startCycle();
+    </script>
+<script src="portfolio-interativo.js?v=3"></script></body></html>
+
+
+
+
+
+
+

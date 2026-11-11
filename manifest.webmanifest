@@ -1,0 +1,10 @@
+{
+  "name": "Digital Lab × FormaLab",
+  "short_name": "Orçamento",
+  "start_url": "./orcamento.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ee",
+  "theme_color": "#48145c",
+  "lang": "pt-PT"
+}
