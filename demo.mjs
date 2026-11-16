@@ -1,4 +1,5 @@
 import {seed,moveStock,addBooking,euro,escapeHtml as esc} from './core.mjs';
+if(new URLSearchParams(location.search).has('embed'))document.body.classList.add('embed');
 const kind=new URLSearchParams(location.search).get('tipo')||'crm';
 const key='formalab-public-demo-v1-'+kind;
 let state;try{state=JSON.parse(localStorage.getItem(key));if(state?.version!==1)state=seed();}catch{state=seed();}

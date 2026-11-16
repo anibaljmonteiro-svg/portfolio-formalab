@@ -21,3 +21,45 @@ body.ver-proposta #proposalWrap{display:block;max-width:860px;margin:0 auto;padd
 @media print{body.ver-proposta{background:white}.pr-bar{display:none!important}body.ver-proposta #proposalWrap{max-width:none;padding:0}#proposal{border:0;padding:0}}
 .choice .mini{margin:4px 0 8px;padding-left:18px;font-size:12.5px;color:var(--muted)}
 .incl-body li.grp,#proposal li.grp{list-style:none;margin:10px 0 2px -18px}.incl-body li.grp>strong,#proposal li.grp>strong{font-size:13px;color:var(--purple)}.incl-body li.grp>ul,#proposal li.grp>ul{margin:3px 0 0}
+
+/* ===== Contraste e clareza (16/11/2026): opções bem visíveis, texto escuro, escolha marcada a cheio ===== */
+:root{--ink:#1c1322;--muted:#453a4d;--line:#8f7a9d}
+body{background:#ece4f1;color:#1c1322;font-size:17px}
+header{background:#2f0b3b;color:#fff;border-bottom:0}
+header a,header .brand,header button.link{color:#fff}
+header button.link{font-size:15px;opacity:.9}
+.muted,.choice small,.panel p.muted{color:#453a4d}
+.eyebrow,.step{color:#fff;background:#48145c;display:inline-block;padding:6px 14px;border-radius:99px;font-size:13px}
+h1 em{color:#48145c}
+.hero-note{color:#2f0b3b;font-weight:600}
+.notice{background:#dcc9e6;color:#210c2b;font-size:15px;border:2px solid #b69bc7}
+.panel{border:3px solid #b69bc7;background:#fff}
+.panel h2{color:#2f0b3b;font-size:28px}
+.choice{border:3px solid #8f7a9d;background:#fff;padding:18px}
+.choice:hover{border-color:#48145c;background:#f6eefa}
+.choice strong{font-size:20px;color:#1c1322}
+.choice .price{font-size:22px;color:#48145c}
+.choice:has(input:checked){background:#48145c;border-color:#2f0b3b;color:#fff;box-shadow:0 0 0 4px #e3b9ff}
+.choice:has(input:checked) strong,.choice:has(input:checked) .price{color:#fff}
+.choice:has(input:checked) small{color:#f1e4f7}
+input[type=checkbox],input[type=radio]{width:24px;height:24px}
+.choice.app{grid-template-columns:30px 1fr}
+button,.button{border:2px solid #48145c;font-weight:700;color:#48145c;padding:12px 18px}
+button.active,button.primary{background:#48145c;color:#fff}
+.presets span{color:#2f0b3b;font-weight:700;font-size:15px}
+.presets button{background:#fff;border-width:2px;font-size:15px}
+input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea{border:2px solid #8f7a9d;font-size:17px}
+details.incl{background:#f6eefa;border:2px solid #b69bc7}
+details.incl summary{font-size:16px;color:#2f0b3b}
+.incl-body ul{font-size:15px}
+.pack{margin:14px 0;padding:12px 14px;border-radius:12px;background:#ffffff1f;font-size:13px}
+.pack ul{margin:6px 0 0;padding-left:18px}
+.summary .pack strong{color:#fff;font-size:14px}
+.stepnav{position:sticky;top:0;z-index:6;display:flex;gap:8px;flex-wrap:wrap;background:#ece4f1;padding:10px 0;margin:0 0 14px}
+.stepnav a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:15px;color:#2f0b3b;background:#fff;border:2px solid #48145c;border-radius:99px;padding:8px 16px}
+.stepnav a b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#48145c;color:#fff;font-size:13px}
+.stepnav a:hover{background:#48145c;color:#fff}.stepnav a:hover b{background:#fff;color:#48145c}
+.panel{scroll-margin-top:72px}
+@media print{.stepnav{display:none!important}}
+.choice:has(input:checked) .mini,.choice:has(input:checked) .mini li{color:#f6ecfa}
+.choice .mini li{color:#2c2233}
